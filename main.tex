@@ -44,6 +44,8 @@ What is the subject/problem to be examined? Why has the subject/problem come up?
 or for whom is it an interesting or relevant subject/problem? Can the specific
 subject/problem be related to a more general discussion?
 }
+Functional programming is a hot topic that has been on the rise for the recent years. 
+
 \section{Aim}
 \textcolor{gray}{
 The aim specifies what the project is intended to result in and what type of results will be
@@ -52,6 +54,24 @@ presented in the background. In most cases, however, it is appropriate to only h
 general aim, which is then broken down into more detailed parts further on in the process
 and essay/report in the bachelor’s thesis.
 }
+\\
+General:
+\begin{itemize}
+    \item Implementing a functional language
+    \item Explore different concept relevant to programming
+          languages (e.g. memory management, monads/effects, and type 
+          checking)
+    \item Document the process of implementing a functional programming 
+          language.
+\end{itemize}
+Things we want to explore/implement:
+\begin{itemize}
+    \item Implement vectors/arrays/lists
+    \item Implement some sort of memory management
+    \item Recursion
+    \item Call-By-Need
+    \item Tooling, a REPL for instance
+\end{itemize}
 \section{Task}
 \textcolor{gray}{
 This section is often the most important part of the planning report (and of the final
@@ -68,11 +88,22 @@ A good problem analysis that identifies sub-problems/sub-tasks and sub-aims ofte
 on the use of theories and models from the literature. A review of the literature should
 therefore be carried out early on in the process.
 }
+
+\begin{equation}
+e ::= n | x | \lambda x \rightarrow e | e e 
+\end{equation}
+
 \section{Scope}
 \textcolor{gray}{
 The scope has to take up what parts of the problem will be not taken up in the essay/report
 and the reason for this. The reasons given for the scope are important.
 }
+
+Things that we shouldn't focus on:
+\begin{itemize}
+    \item External library management
+    \item Extensive standard library
+\end{itemize}
 \section{Implementation}
 \textcolor{gray}{
 How the group has intended to implement the work is their choice of method. In design-
@@ -89,7 +120,7 @@ Number of study objects/test cases and how are they selected? Type of investigat
 method/test method? How will the data/test results collected be analyzed and presented?
 What does the process for the literature work look like?
 }
-\section{Maybe (Societal and ethical aspects)}
+\section{Societal and ethical aspects}
 \textcolor{gray}{
 In the planning report the group is expected to write a brief text in which the group assesses
 whether societal and ethical aspects need to be taken into account and analyzed further in
