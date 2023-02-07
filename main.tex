@@ -10,9 +10,11 @@
 \usepackage[all]{nowidow}
 \usepackage[protrusion=true,expansion=true]{microtype}
 \usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{titling}
 
 \frenchspacing
-\linespread{1.5}
+\linespread{1.0}
 \setlength{\parindent}{0cm}
 \usepackage{float}
 \usepackage[
@@ -29,115 +31,240 @@ style=ieee,
     pdfauthor = {}
 }
 
-\title{Planning report}
+\title{Creating a functional programming language based on System F}
+
+\author{William Bodin\and Martin Fredin\and Samuel Hammersberg\and Valter Miari\and Victor Olin\and Sebastian Selander}
+\date{}
 
 \begin{document}
 \maketitle
+
+\begin{center}
+    \includegraphics[scale=0.3]{tjolmers.png}
+    
+    \includegraphics[scale=1.5]{golleborg.png}
+\end{center}
+
+\newpage
+
+\section*{Glossary}
+\begin{itemize}
+    \item System F - A typed lambda calculus that provides a theoretical basis for mathematical programming languages like Haskell and ML.
+    \item Haskell - A general-purpose functional programming language popular in academia.
+    \item BNFC - Backus-Naur Form Converter, a tool to generate lexers and parsers in a specified host language. These tools generated will help form the compiler for the language in question. \cite{bnfc}
+    \item Lexer - The first part of the compilation phase which reads a given text and splits it into tokens. This phase creates the tokens necessary for the parser to continue the compilation.
+    \item Parser - The second phase of compilation, receives tokens from the lexer and parses them into a syntax tree.
+    \item AST - Abstract syntax tree, a tree data structure to represent the flow of a program.
+    \item Annotated AST - An extension of an AST with type annotations on operations and data types.
+    \item LLVM - A compiler suite with reusable tools to create compilers for modern languages. \cite{llvm}
+    \item LLVM IR - LLVM intermediate representation, a platform-independent high-level assembly language.
+    \item Alex - A tool for generating lexical analyzers in Haskell.
+    \item Happy - A parser generator for Haskell.
+\end{itemize}
+
+\newpage
+
 \section{Background}
-\textcolor{gray}{
-The background has to contain reasons why the subject chosen is of interest from an
-academic perspective and/or from an engineering perspective or, where relevant, from the
-perspective of the customer/client. In certain cases, this heading has to include a brief
-history of the subject. After reading the background all readers should understand why the
-subject is relevant. The following issues should be considered:
-What is the subject/problem to be examined? Why has the subject/problem come up? Why
-or for whom is it an interesting or relevant subject/problem? Can the specific
-subject/problem be related to a more general discussion?
-}
-Functional programming is a hot topic that has been on the rise for the recent years. 
+In general, there have always been two distinct branches of programming, imperative and functional programming.
+Functional languages have several differences to imperative languages, they come with greater expressive power, a more
+declarative style, and a close resemblance to mathematics. The influence of functional programming can also be noticed in
+recent trends regarding non-functional languages, some, which have borrowed functionality from functional languages, like C\# implementing Linq
+to support more functional styles of programming. Rust is a more recent programming language that has taken a
+lot of inspiration from functional languages such as Haskell and OCaml \cite{rustinfl}.
+
+In functional languages, powerful type systems are formed on the basis of mathematics and typed lambda calculus such
+as System F \cite{girard1986system}. This provides a way to express the behavior of programs and also catch 
+developer-induced bugs already at compile time.
+
+When designing a language, one has to face a critical decision regarding the execution
+of programs written in the language in question, whether the language should be
+interpreted or compiled. Interpreted languages have the advantage of inheriting the architectural support of the host language. Comparatively, the host language of the compiler, as well as the architecture of the generated code has to be supported. \\
+While writing compilers can be tedious for the developer, it comes with the
+advantage of the compiled program being faster. When interpreters are executing
+a program, the interpreter and its runtime have to handle all communication with the
+hardware through the operating system. A compiled program can directly be executed by the 
+operating system such that no middle layer exists between the hardware and the program.
+
+LLVM \cite{llvm} is a compiler infrastructure that allows one to compile a program 
+to any of its supported target architectures. This compiler infrastructure will be used to 
+avoid architecture-specific hardware and software details, such as reading registers and
+manipulating the stack. Taking this load off of the developer such that one can
+focus more on implementing the language rather than debugging machine code on various
+systems.
+
+%All of this can be hard for any developer to grasp completely, even though they are
+%important areas of development. That is why it is important to explore these topics
+%and to try to learn them because to learn a topic one must try to implement them
+%themselves.
+%
+Clearly, programming language design is a complex task. It is important that different methods are tried and documented, allowing developers in the future to take advantage of the processes that worked well, and also not repeat the mistakes of previous language designers.
+
+\newpage
 
 \section{Aim}
-\textcolor{gray}{
-The aim specifies what the project is intended to result in and what type of results will be
-achieved. A project can have several different aims that are related to the subjects/problems
-presented in the background. In most cases, however, it is appropriate to only have a
-general aim, which is then broken down into more detailed parts further on in the process
-and essay/report in the bachelor’s thesis.
-}
-\\
-General:
-\begin{itemize}
-    \item Implementing a functional language
-    \item Explore different concept relevant to programming
-          languages (e.g. memory management, monads/effects, and type 
-          checking)
-    \item Document the process of implementing a functional programming 
-          language.
-\end{itemize}
-Things we want to explore/implement:
-\begin{itemize}
-    \item Implement vectors/arrays/lists
-    \item Implement some sort of memory management
-    \item Recursion
-    \item Call-By-Need
-    \item Tooling, a REPL for instance
-\end{itemize}
-\section{Task}
-\textcolor{gray}{
-This section is often the most important part of the planning report (and of the final
-essay/report). It aims to identify the question(s) to be raised in the project. It is important
-that the group does a problem analysis even if a problem (task) is already specified in the
-project proposal. The reason is that the real primary problem often differs from the problem
-initially proposed by the client/proposer/customer. The problem analysis is also intended to
-break down the problem/task into smaller and more detailed sub-problems/sub-tasks, which
-can also lead to the formulation of sub-aims. By doing this the students gain a much better
-understanding of the different aspects of the problem/task. Without this information it is
-impossible to identify what information is needed, what information sources are needed and
-what approaches are suitable.
-A good problem analysis that identifies sub-problems/sub-tasks and sub-aims often builds
-on the use of theories and models from the literature. A review of the literature should
-therefore be carried out early on in the process.
-}
 
-\begin{equation}
-e ::= n | x | \lambda x \rightarrow e | e e 
-\end{equation}
+The two primary goals of the project are to explore the process of creating a statically typed functional programming based on System F that is compiled to LLVM \cite{llvm}, and explore some advanced concepts related to programming language theory. As such, two important aspect of the project is documentation as well as verifying the correctness of the implementation. \\
+The compiler should be based on good and robust methods, this means that the methods used should, if possible, be based on previous successful attempts. One such example is basing our type rules solely on those of System F.
+
 
 \section{Scope}
-\textcolor{gray}{
-The scope has to take up what parts of the problem will be not taken up in the essay/report
-and the reason for this. The reasons given for the scope are important.
-}
+Implementing a useful general-purpose language with all the functionality users have become accustomed to is complex and time-consuming. 
+Therefore, scoping, in the sense of; knowing what to prioritize and trying to define what is achievable within a certain time frame, is an integral part of the process.
 
-Things that we shouldn't focus on:
+The language is not supposed to be useful, but rather it is an academic exercise. One example of uselessness is the lack of effects, i.e. interactions with the outside world. The only planned effect is to print the computed value.
+
+Another feature that is out of scope for this project is an extensive standard library. 
+Many modern programming languages have a big collection of functions for performing common tasks. 
+One example of this is the programming language Go,
+which is a programming language initially developed as a systems language with a focus on multi-processing \cite{go}. Still, the first release of Go included a package for creating a web server. 
+The language of this project will not focus on a standard library because there seem to be fewer interesting design decisions, in comparison to other parts of the compiler.   
+
+
+Other areas that will not be implemented:
 \begin{itemize}
     \item External library management
-    \item Extensive standard library
+    \item Linking and modules
+    \item Code optimization
+    \item Concurrency
+    \item Input/Output
 \end{itemize}
+
+\newpage
+
 \section{Implementation}
-\textcolor{gray}{
-How the group has intended to implement the work is their choice of method. In design-
-centered projects this may appear to be obvious, but there may also be important choices of
-method in this case. Wholly literature-based bachelor’s theses are also feasible, but even a
-literature study has to have an ordered and structured work process and methodology.
-The method section should also describe how to collect data and how to establish how well
-the aim of the project has been fulfilled. In practical projects this can be through
-measurements of various types. It can also be through computer simulations. What aspects
-are important in order to know whether the aim of the project has been achieved? Data
-collection can also be an important part of testing or other evaluation of the product
-developed in a design-focused project.
-Number of study objects/test cases and how are they selected? Type of investigation
-method/test method? How will the data/test results collected be analyzed and presented?
-What does the process for the literature work look like?
-}
+A compiler consists roughly of the following six phases: lexical analysis, syntactic analysis or parsing,
+semantic analysis, intermediate code generation, code optimization, and code generation.
+
+\subsection{Lexer and Parser}
+The lexer and the parser will be generated using BNFC, as it provides an ergonomic way of quickly developing and making
+changes to the grammar.  If it turns out that the limitations of BNFC are too great, a custom lexer and parser will be
+created, perhaps using tools such as Alex and Happy.
+
+\subsection{Type checker}
+In the type checker, the abstract syntax tree from parsing is annotated with type information. This part of
+the compiler also validates the tree using the type-checking and type inference rules of System F. As
+validation is done in the type checker a lot of the syntactically valid programs from parsing are deemed invalid,
+thus only a small subset of programs can pass this step. Because of this, the next step of the compiler
+becomes a lot cleaner, as no validation is needed.
+
+\subsection{Code generation \& Compilation}
+In these steps, the resulting annotated AST from the type checker is sent to 
+the code generation function which traverses the tree, creating a new tree
+which represents LLVM's intermediate language, LLVM IR.
+
+During this process, additional functionality, like writing text to the user, is baked into 
+the program, as this is something that can not be implemented in our language due to the 
+required bindings which are out of scope for this project.
+This finalized tree can be compiled into machine code using LLVM, which can then be run on
+the target platform.
+
+\subsection{Garbage collection}
+A garbage collector will be developed together with the language run-time and will be implemented
+in a lower-level language such as C++ to leverage its speed and lower-level operations.
+The implementation design is yet to be determined, as the project and tool chain structure
+are quite complex. One idea is to construct the garbage collector as an interface and invoke
+endpoints in LLVM as it supports external functions which do not have to be available
+at compilation. The benefit of this idea is that the garbage collector does not have to
+be recompiled every time the user compiles their program. However, this makes it such that the garbage collector has to be
+target specific, which results in more work for the developer to choose what platforms to support.
+
+There are multiple algorithms for implementing a garbage collector and an
+endless amount of combinations. The algorithm used for this project will be determined later
+during the project when we are more confident in what suits the language's and the group's needs.
+
+\subsection{Documentation}
+As the language evolves the importance of the creation of a language specification and 
+language reference grows with it.
+As with any proper programming language, having documentation on what the language includes 
+and its capabilities
+is crucial for curious developers wanting to learn the language, or other developers wanting 
+to create their own compiler for the language.
+
+The specification will include the syntax and the grammar for the language, removing any 
+ambiguity about what
+is a syntactically correct program. It should also include a description of the type system 
+and some information
+about the compiler and the outputted machine code.
+
+The language reference should act as a manual for the language, showing how to use the 
+language and the basic elements such as the operators and the limited standard library.
+
+\subsection{Correctness}
+One important part of creating a programming language is verifying its correctness.
+The semantics should be sound and follow mathematical laws, and the behavior of the compiled 
+code should be consistent and correct.
+Proving the correctness of the compiler is a complicated and time-consuming task. The focus 
+will instead be properly testing all parts of the compiler. This will be done using unit 
+tests in Haskell, as well as writing property-based tests using QuickCheck. \cite{claessen2000quickcheck}
+
+\subsection{Milestones \& success}
+The success of the project is determined by how many of the listed milestones are achieved. The baseline of the project is
+covered by the first four points. Pattern matching and recursive algebraic data types are extensions to the language that
+make it actually practical to use. If time allows, garbage collection and linear types are more advanced concepts that
+will be explored.
+
+\begin{itemize}
+\item Type checking
+\item Type inference
+\item Code generation to LLVM IR
+\item Code generation to machine code using LLVM bindings
+\item Pattern matching
+\item Recursive algebraic data types
+\item Linear types
+\item Garbage collection
+\end{itemize}
+
+
 \section{Societal and ethical aspects}
-\textcolor{gray}{
-In the planning report the group is expected to write a brief text in which the group assesses
-whether societal and ethical aspects need to be taken into account and analyzed further in
-the essay/report. The group will benefit from using annex 7 as support along with the digital
-resources available on the Student Portal’s pages about the bachelor’s thesis.
-}
+Creating a programming language is generally not a question of ethics.
+The aspects to consider are mostly plagiarism and transparency. In this project, we will adhere to the code of ethics as
+defined by the Association of Computing Machinery \cite{ACM}. The most important point in the code of ethics is 1.5
+\emph {Respect the work required to produce new ideas, inventions, creative works, and computing artifacts}, which states that
+original authors should be credited for their work, as well as respecting licenses and copyrights.
+
+One should also follow point 1.3 \emph{Be honest and trustworthy}, which states that one should be honest about the limits and
+capabilities of one's work, and our ability as well. This means we should be honest about flaws and untested parts of our
+project, and not exaggerate the capabilities of our language.
+
 \section{Timetable}
-\textcolor{gray}{
-This part of the planning report describes what will be done and when it will be done. The
-people to be contacted should also be stated here. The dates or at least the weeks when the
-students will submit interim reports and the final presentation have to be stated here. The
-timetable will obviously be fairly rough to begin with.
-It is important to note that the activities in the project cannot be viewed sequentially as
-these activities are dependent on one another, which means that there will be a number of
-iterations between them. It will only be possible to use the knowledge built up in a good way
-by iterating between them. The same thinking also applies to report writing, i.e. the
-updating of a section also requires the updating of other sections. Report writing should
-therefore be done continuously during the whole of the project.
-}
+\begin{center}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Date} & \textbf{Activity}  & \textbf{Contact} \\ 
+\hline
+\hline
+% 6/2  & Draft of planning report finished before supervision & - \\ 
+% 9/2  & Technical language supervision                       & - \\ 
+% 10/2 & Hand in planning report                              & - \\ 
+13/2 & Start working on the compiler                        & - \\ 
+\hline
+7/3  & Half time presentation                               & - \\
+\hline
+12/3 & First individual contribution report                 & - \\
+\hline
+27/4 & Hand in the first draft of the report                    & Supervisor \\
+\hline
+12/5 & Finalize the compiler                                & - \\
+\hline
+15/5 & Hand in the second draft of the report                   & - \\
+\hline
+15/5 & Contribution report                                  & - \\
+\hline
+17/5 & Hand in video presentation                           & - \\
+\hline
+22/5 & Individual written opposition                        & Opposition group \\
+\hline
+25/5 & Presentation                                         & - \\
+\hline
+26/5 & Presentation                                         & - \\
+\hline
+29/5 & Second individual contribution report                & - \\
+\hline
+2/6  & Hand in final report                                 & - \\
+\hline
+\end{tabular}
+\end{center}
+
+\newpage
+\printbibliography
 \end{document}
